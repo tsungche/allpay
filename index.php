@@ -34,9 +34,26 @@
 			if(!empty($shopping) && is_array($shopping)){
 				foreach($shopping as $sess_code => $row){
 					$p_name_array[] = $row["p_name"];
+					$p_num_array[] = $_SESSION[$cms_cfg['sess_cookie_name']]["amount"][$sess_code];
+					
+	                if(!empty($_SESSION[$cms_cfg['sess_cookie_name']]["MEMBER_DISCOUNT"]) && $_SESSION[$cms_cfg['sess_cookie_name']]["MEMBER_DISCOUNT"]!=100){
+	                    $p_price_array[] = floor($_SESSION[$cms_cfg['sess_cookie_name']]["MEMBER_DISCOUNT"] / 100 * $row["p_special_price"]);
+	                }else{
+	                    $p_price_array[] = $row["p_special_price"];
+	                }
 				}
 				
-				$this->all_cfg["ItemName"] = implode("#",$p_name_array);
+				if($c_pay == "Alipay"){
+					$this->all_cfg["AlipayItemName"] = implode("#",$p_name_array);
+					$this->all_cfg["AlipayItemCounts"] = implode("#",$p_num_array);
+					$this->all_cfg["AlipayItemPrice"] = implode("#",$p_price_array);
+					
+					$this->all_cfg["Email"] = $_REQUEST["m_email"];
+					$this->all_cfg["PhoneNo"] = $_REQUEST["m_tel"];
+					$this->all_cfg["UserName"] = $_REQUEST["m_name"];
+				}else{
+					$this->all_cfg["ItemName"] = implode("#",$p_name_array);
+				}
 			}
 			
 			$this->allpay_code = $this->allpay_checkcode();
