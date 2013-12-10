@@ -1,8 +1,9 @@
 <?php
 	// 主要設定 ----
 	$this->all_cfg["MerchantID"] = ""; // 特店編號
-	$this->all_cfg["POST"] = "https://payment.allpay.com.tw/Cashier/AioCheckOut"; // 串接主機 (正式)
-	$this->all_cfg["POST"] = "http://payment-stage.allpay.com.tw/Cashier/AioCheckOut"; // 串接主機 ((測試) 正式環境請註解此行
+	$this->all_cfg["POST"] = "https://payment.allpay.com.tw"; // 串接主機 (正式)
+	$this->all_cfg["POST"] = "http://payment-stage.allpay.com.tw"; // 串接主機 ((測試) 正式環境請註解此行
+	$this->all_cfg["PATH"] =  "/Cashier/AioCheckOut";
 	
 	$this->all_cfg["HashKey"] = ""; // Hash key
 	$this->all_cfg["HashIV"] = ""; // Hash IV
