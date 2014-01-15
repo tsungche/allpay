@@ -62,13 +62,15 @@
 					$this->all_cfg["Email"] = $_REQUEST["m_email"];
 					$this->all_cfg["PhoneNo"] = $_REQUEST["m_tel"];
 					$this->all_cfg["UserName"] = $_REQUEST["m_name"];
-				}else{
-					foreach($p_name_array as $p_key => $p_val){
-						$p_array[] = $p_val.'X'.$p_num_array[$p_key];
-					}
 					
-					$this->all_cfg["ItemName"] = implode("#",$p_array);
+					$this->all_cfg["ItemName"] = "";
 				}
+				
+				foreach($p_name_array as $p_key => $p_val){
+					$p_array[] = $p_val.'X'.$p_num_array[$p_key];
+				}
+				
+				$this->all_cfg["ItemName"] = implode("#",$p_array);
 			}
 			
 			// 組合所有參數
@@ -84,7 +86,21 @@
 			$this->allpay_code = $this->allpay_checkcode($all_code_array);
 			
 			// 組合訂單資訊
-			$this->allpay_send_form($all_value_array);
+			$allpay_send_ck = $this->allpay_send_form($all_value_array);
+			
+			if($allpay_send_ck){
+	            $sql="
+	                update ".$cms_cfg['tb_prefix']."_order
+	                    set o_status='4'
+	                where o_id='".$this->all_cfg["MerchantTradeNo"]."'";
+	            $db->query($sql);
+			}else{
+	            $sql="
+	                update ".$cms_cfg['tb_prefix']."_order
+	                    set o_status='10'
+	                where o_id='".$this->all_cfg["MerchantTradeNo"]."'";
+	            $db->query($sql);
+			}
 		}
 
 		// 組合訂單資訊
@@ -98,6 +114,8 @@
 				
 				if(count($input_str) > 0){
 					$input_add = implode('',$input_str);
+				}else{
+					return false;
 				}
 				
 				$form = '
@@ -120,7 +138,7 @@
 				
 				echo $form;
 				
-				//檢查用
+				#檢查用
 				#echo implode('<br /><br />',$this->ck);
 				
 				return true;
@@ -171,14 +189,29 @@
 	                    '".$_POST["SimulatePaid"]."',
 	                    '".$_POST["CheckMacValue"]."'
 	                )";
-	            $rs = $db->query($sql);
+	            $db->query($sql);
+	            
+	            if($_POST["RtnCode"] == 1){
+		            $sql="
+		                update ".$cms_cfg['tb_prefix']."_order
+		                    set o_status='5'
+		                where o_id='".$_POST["MerchantTradeNo"]."'";
+		            $db->query($sql);
+	            }
 	            
 	            echo '1|OK';
             }else{
             	echo '0|ErrorMessage';
             }
             
-            //header("refresh:2;url=".$cms_cfg["base_root"]);
+            if($_POST["RtnCode"] != 1 || $ckmac_key != $_POST["CheckMacValue"]){
+	            $sql="
+	                update ".$cms_cfg['tb_prefix']."_order
+	                    set o_status='10'
+	                where o_id='".$_POST["MerchantTradeNo"]."'";
+	            $db->query($sql);
+            }
+           	
             exit;
 		}
 		

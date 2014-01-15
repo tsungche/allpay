@@ -138,7 +138,7 @@
 		94 => $TPLMSG["BARCODE"],
 		95 => $TPLMSG["ALIPAY"],
 		96 => $TPLMSG["TENPAY"],
-		97 => $TPLMSG["TOPUPUSED"],
+		//97 => $TPLMSG["TOPUPUSED"],
 	);
 	
 	
