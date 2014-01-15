@@ -37,7 +37,7 @@
 			if(!empty($pay_desc)){
 				$this->all_cfg["TradeDesc"] = $pay_desc;
 			}else{
-				$this->all_cfg["TradeDesc"] = 'TEST';
+				$this->all_cfg["TradeDesc"] = $_SESSION[$cms_cfg['sess_cookie_name']]["sc_company"].'_交易訂單_'.$this->all_cfg["MerchantTradeNo"];
 			}
 			
 			//取得商品資訊
