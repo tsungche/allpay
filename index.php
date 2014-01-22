@@ -6,8 +6,14 @@
 			global $db,$cms_cfg,$ws_array,$TPLMSG;
 			include_once("config.php");
 			
-			if(!empty($_POST["MerchantTradeNo"]) && empty($_REQUEST["o_id"])){
-				$this->allpay_respone();
+			// ReturnURL
+			if(!empty($_POST["MerchantTradeNo"]) && empty($_REQUEST["o_id"]) && empty($_REQUEST["ap_retrun"])){
+				$this->allpay_respone(0);
+			}
+			
+			// PaymentInfoURL
+			if(!empty($_POST["MerchantTradeNo"]) && empty($_REQUEST["o_id"]) && !empty($_REQUEST["ap_retrun"])){
+				$this->allpay_respone(1);
 			}
 		}
 		
@@ -53,6 +59,12 @@
 					}
 				}
 				
+				foreach($p_name_array as $p_key => $p_val){
+					$p_array[] = $p_val.'X'.$p_num_array[$p_key];
+				}
+				
+				$this->all_cfg["ItemName"] = implode("#",$p_array);
+				
 				// 判斷是否為支付寶
 				if($c_pay == "Alipay"){
 					$this->all_cfg["AlipayItemName"] = implode("#",$p_name_array);
@@ -65,13 +77,10 @@
 					
 					$this->all_cfg["ItemName"] = "";
 				}
-				
-				foreach($p_name_array as $p_key => $p_val){
-					$p_array[] = $p_val.'X'.$p_num_array[$p_key];
-				}
-				
-				$this->all_cfg["ItemName"] = implode("#",$p_array);
 			}
+
+			//暫定代案 (另找方法解決 PHP & ASP.NET URL encode 相容問題)
+			$this->all_cfg["ItemName"] = "糖家莊網路訂購";
 			
 			// 組合所有參數
 			ksort($this->all_cfg);
@@ -100,6 +109,8 @@
 	                    set o_status='10'
 	                where o_id='".$this->all_cfg["MerchantTradeNo"]."'";
 	            $db->query($sql);
+				
+				//? mail 訂單錯誤處理
 			}
 		}
 
@@ -138,9 +149,6 @@
 				
 				echo $form;
 				
-				#檢查用
-				#echo implode('<br /><br />',$this->ck);
-				
 				return true;
 			}else{
 				return false;
@@ -148,7 +156,7 @@
 		}
 		
 		// 結果接收
-		function allpay_respone(){
+		function allpay_respone($switch=0){
 			global $db,$cms_cfg,$ws_array,$TPLMSG;
 			
 			ksort($_POST);
@@ -161,55 +169,100 @@
 			$ckmac_key = strtoupper($this->allpay_checkcode($all_post_array));
 			
 			if($ckmac_key == $_POST["CheckMacValue"]){
-	            $sql="
-	                insert into ".$cms_cfg['tb_prefix']."_allpay_order (
-	                    o_id,
-	                    MerchantID,
-	                    RtnCode,
-	                    RtnMsg,
-	                    TradeNo,
-	                    TradeAmt,
-	                    PaymentDate,
-	                    PaymentType,
-	                    PaymentTypeChargeFee,
-	                    TradeDate,
-	                    SimulatePaid,
-	                    CheckMacValue
-	                ) values (
-	                    '".$_POST["MerchantTradeNo"]."',
-	                    '".$_POST["MerchantID"]."',
-	                    '".$_POST["RtnCode"]."',
-	                    '".$_POST["RtnMsg"]."',
-	                    '".$_POST["TradeNo"]."',
-	                    '".$_POST["TradeAmt"]."',
-	                    '".$_POST["PaymentDate"]."',
-	                    '".$_POST["PaymentType"]."',
-	                    '".$_POST["PaymentTypeChargeFee"]."',
-	                    '".$_POST["TradeDate"]."',
-	                    '".$_POST["SimulatePaid"]."',
-	                    '".$_POST["CheckMacValue"]."'
-	                )";
-	            $db->query($sql);
-	            
-	            if($_POST["RtnCode"] == 1){
-		            $sql="
-		                update ".$cms_cfg['tb_prefix']."_order
-		                    set o_status='5'
-		                where o_id='".$_POST["MerchantTradeNo"]."'";
-		            $db->query($sql);
-	            }
+				switch($switch){
+					default:
+			            $sql="
+			                insert into ".$cms_cfg['tb_prefix']."_allpay_order (
+			                    o_id,
+			                    MerchantID,
+			                    RtnCode,
+			                    RtnMsg,
+			                    TradeNo,
+			                    TradeAmt,
+			                    PaymentDate,
+			                    PaymentType,
+			                    PaymentTypeChargeFee,
+			                    TradeDate,
+			                    SimulatePaid,
+			                    CheckMacValue
+			                ) values (
+			                    '".$_POST["MerchantTradeNo"]."',
+			                    '".$_POST["MerchantID"]."',
+			                    '".$_POST["RtnCode"]."',
+			                    '".$_POST["RtnMsg"]."',
+			                    '".$_POST["TradeNo"]."',
+			                    '".$_POST["TradeAmt"]."',
+			                    '".$_POST["PaymentDate"]."',
+			                    '".$_POST["PaymentType"]."',
+			                    '".$_POST["PaymentTypeChargeFee"]."',
+			                    '".$_POST["TradeDate"]."',
+			                    '".$_POST["SimulatePaid"]."',
+			                    '".$_POST["CheckMacValue"]."'
+			                )";
+			            $db->query($sql);
+			            
+			            if($_POST["RtnCode"] == 1){
+				            $sql="
+				                update ".$cms_cfg['tb_prefix']."_order
+				                    set o_status='5'
+				                where o_id='".$_POST["MerchantTradeNo"]."'";
+				            $db->query($sql);
+			            }
+					break;
+					case 1:
+			            $sql="
+			                insert into ".$cms_cfg['tb_prefix']."_allpay_payinfo (
+			                    o_id,
+			                    MerchantID,
+			                    RtnCode,
+			                    RtnMsg,
+			                    TradeNo,
+			                    TradeAmt,
+			                    PaymentType,
+			                    TradeDate,
+			                    CheckMacValue,
+			                    BankCode,
+			                	vAccount,
+			                	PaymentNo,
+			                	Barcode1,
+			                	Barcode2,
+			                	Barcode3,
+			                	ExpireDate
+			                ) values (
+			                    '".$_POST["MerchantTradeNo"]."',
+			                    '".$_POST["MerchantID"]."',
+			                    '".$_POST["RtnCode"]."',
+			                    '".$_POST["RtnMsg"]."',
+			                    '".$_POST["TradeNo"]."',
+			                    '".$_POST["TradeAmt"]."',
+			                    '".$_POST["PaymentType"]."',
+			                    '".$_POST["TradeDate"]."',
+			                    '".$_POST["CheckMacValue"]."',
+			                    '".$_POST["BankCode"]."',
+			                	'".$_POST["vAccount"]."',
+			                	'".$_POST["PaymentNo"]."',
+			                	'".$_POST["Barcode1"]."',
+			                	'".$_POST["Barcode2"]."',
+			                	'".$_POST["Barcode3"]."',
+			                	'".$_POST["ExpireDate"]."'
+			                )";
+			            $db->query($sql);
+					break;
+				}
 	            
 	            echo '1|OK';
             }else{
             	echo '0|ErrorMessage';
             }
             
-            if($_POST["RtnCode"] != 1 || $ckmac_key != $_POST["CheckMacValue"]){
+            if($_POST["RtnCode"] != 1 && $_POST["RtnCode"] != 2 && $_POST["RtnCode"] != "10100073" || $ckmac_key != $_POST["CheckMacValue"]){
 	            $sql="
 	                update ".$cms_cfg['tb_prefix']."_order
 	                    set o_status='10'
 	                where o_id='".$_POST["MerchantTradeNo"]."'";
 	            $db->query($sql);
+	            
+				//? mail 訂單錯誤處理
             }
            	
             exit;
@@ -222,8 +275,48 @@
 			#$this->ck[1] = 'HashKey='.$this->all_cfg["HashKey"].'&'.implode("&",$all_value_array).'&HashIV='.$this->all_cfg["HashIV"];
 			#$this->ck[2] = urlencode('HashKey='.$this->all_cfg["HashKey"].'&'.implode("&",$all_value_array).'&HashIV='.$this->all_cfg["HashIV"]);
 			#$this->ck[3] = strtolower(urlencode('HashKey='.$this->all_cfg["HashKey"].'&'.implode("&",$all_value_array).'&HashIV='.$this->all_cfg["HashIV"]));
-			
+			#echo implode('<br /><br />',$this->ck);
+
 			return md5(strtolower(urlencode('HashKey='.$this->all_cfg["HashKey"].'&'.implode("&",$all_code_array).'&HashIV='.$this->all_cfg["HashIV"])));
+		}
+		
+		// 會員訂單管理顯示資料
+		function member_allapy_detail($o_id=0){
+			global $tpl,$db,$cms_cfg,$TPLMSG;
+			
+			$sql="select * from ".$cms_cfg["tb_prefix"]."_allpay_payinfo where o_id='".$o_id."'";
+			$selectrs = $db->query($sql);
+			$rsnum    = $db->numRows($selectrs);
+			
+			if(!empty($rsnum)){
+				$row = $db->fetch_array($selectrs,1);
+				$type_array = explode("_",$row["PaymentType"]);
+				switch($type_array[0]){
+					case "ATM":
+						$value_array[$TPLMSG['ALLPAY_BANK_CODE']] = $row["BankCode"];
+						$value_array[$TPLMSG['ALLPAY_VACCOUNT']] = $row["vAccount"];
+						$value_array[$TPLMSG['ALLPAY_EXPIRE']] = $row["ExpireDate"];
+					break;
+					case "CVS":
+						$value_array[$TPLMSG['ALLPAY_CVS_NO']] = $row["PaymentNo"];
+						$value_array[$TPLMSG['ALLPAY_EXPIRE']] = $row["ExpireDate"];
+					break;
+					case "BARCODE":
+						$value_array[$TPLMSG['ALLPAY_CVS_BAR_1']] = $row["Barcode1"];
+						$value_array[$TPLMSG['ALLPAY_CVS_BAR_2']] = $row["Barcode2"];
+						$value_array[$TPLMSG['ALLPAY_CVS_BAR_3']] = $row["Barcode3"];
+						$value_array[$TPLMSG['ALLPAY_EXPIRE']] = $row["ExpireDate"];
+					break;
+				}
+				
+				foreach($value_array as $key => $value){
+					$tpl->newBlock("TAG_ALLPAY_DETAIL");
+					$tpl->assign(array(
+						"VALUE_ALLPAY_TITLE" => $key,
+						"VALUE_ALLPAY_VALUE" => $value,
+					));
+				}
+			}
 		}
 	}
 ?>

@@ -1,17 +1,18 @@
 <?php
 	// 主要設定 ----
-	$this->all_cfg["MerchantID"] = ""; // 特店編號
+	$this->all_cfg["MerchantID"] = "2000132"; // 特店編號
 	$this->all_cfg["POST"] = "https://payment.allpay.com.tw"; // 串接主機 (正式)
 	$this->all_cfg["POST"] = "http://payment-stage.allpay.com.tw"; // 串接主機 (測試) 正式環境請註解此行
 	$this->all_cfg["PATH"] =  "/Cashier/AioCheckOut";
 	
-	$this->all_cfg["HashKey"] = ""; // Hash key
-	$this->all_cfg["HashIV"] = ""; // Hash IV
+	$this->all_cfg["HashKey"] = "5294y06JbISpM5x9"; // Hash key
+	$this->all_cfg["HashIV"] = "v77hoKGq4kWxNNIS"; // Hash IV
 	
 	$this->all_cfg["MerchantTradeDate"] = date("Y/m/d H:i:s"); // 廠商交易時間
-	$this->all_cfg["ReturnURL"] = ""; // 回傳網址
+	$this->all_cfg["ReturnURL"] = "http://www.twsweetland.com"; // 回傳網址
 	$this->all_cfg["ClientBackURL"] = ""; // ALLPAY 會員回傳網址
 	$this->all_cfg["OrderResultURL"] = ""; // ALLPAY 會員付款結果網址
+	$this->all_cfg["PaymentInfoURL"] = $this->all_cfg["ReturnURL"]."/?ap_retrun=1"; // ATM or CVS(超商) 付費專屬資訊回傳網址
 	$this->all_cfg["ItemURL"] = ""; // 商品銷售網址
 	
 	
@@ -184,4 +185,24 @@
 	*/
 	
 	####################################################################################
+	/*
+		增加的 TPLMSG
+	
+		$TPLMSG["CREDIT"] = "信用卡";
+		$TPLMSG["WEBATM"] = "網路ATM";
+		$TPLMSG["ATM"] = "自動櫃員機";
+		$TPLMSG["CVS"] = "超商代碼 (需加收 30 元手續費)";
+		$TPLMSG["BARCODE"] = "超商條碼 (需加收 30 元手續費)";
+		$TPLMSG["ALIPAY"] = "支付寶";
+		$TPLMSG["TENPAY"] = "財付通";
+		$TPLMSG["TOPUPUSED"] = "儲值消費";
+		
+		$TPLMSG['ALLPAY_BANK_CODE'] = "ATM 銀行代碼";
+		$TPLMSG['ALLPAY_VACCOUNT'] = "ATM 付費帳號";
+		$TPLMSG['ALLPAY_CVS_NO'] = "超商繳費代碼";
+		$TPLMSG['ALLPAY_CVS_BAR_1'] = "超商繳費條碼 1";
+		$TPLMSG['ALLPAY_CVS_BAR_2'] = "超商繳費條碼 2";
+		$TPLMSG['ALLPAY_CVS_BAR_3'] = "超商繳費條碼 3";
+		$TPLMSG['ALLPAY_EXPIRE'] = "繳費期限";
+	*/
 ?>
