@@ -80,7 +80,7 @@
 			}
 
 			//暫定代案 (另找方法解決 PHP & ASP.NET URL encode 相容問題)
-			$this->all_cfg["ItemName"] = "糖家莊網路訂購";
+			$this->all_cfg["ItemName"] = "網路訂單一筆";
 			
 			// 組合所有參數
 			ksort($this->all_cfg);
