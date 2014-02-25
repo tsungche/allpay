@@ -1,15 +1,21 @@
 <?php
 	// 主要設定 ----
-	$this->all_cfg["MerchantID"] = ""; // 特店編號
+	$this->allpay_switch = false; // 於 cart class 使用歐付寶功能, true => 開啟 , false => 單獨使用歐付寶
+	$this->anonymous_switch = false; // 匿名產品名稱, true => 開啟 , false => 關閉
+	if($this->anonymous_switch){
+		$this->anonymous_str = '網路訂單一筆'; // 匿名名稱設定
+	}
+	
+	$this->all_cfg["MerchantID"] = "2000132"; // 特店編號
 	$this->all_cfg["POST"] = "https://payment.allpay.com.tw"; // 串接主機 (正式)
 	$this->all_cfg["POST"] = "http://payment-stage.allpay.com.tw"; // 串接主機 (測試) 正式環境請註解此行
 	$this->all_cfg["PATH"] =  "/Cashier/AioCheckOut";
 	
-	$this->all_cfg["HashKey"] = ""; // Hash key
-	$this->all_cfg["HashIV"] = ""; // Hash IV
+	$this->all_cfg["HashKey"] = "5294y06JbISpM5x9"; // Hash key
+	$this->all_cfg["HashIV"] = "v77hoKGq4kWxNNIS"; // Hash IV
 	
 	$this->all_cfg["MerchantTradeDate"] = date("Y/m/d H:i:s"); // 廠商交易時間
-	$this->all_cfg["ReturnURL"] = ""; // 回傳網址
+	$this->all_cfg["ReturnURL"] = "http://potson.allmarketing.com.tw/new_cart/"; // 回傳網址
 	$this->all_cfg["ClientBackURL"] = ""; // ALLPAY 會員回傳網址
 	$this->all_cfg["OrderResultURL"] = ""; // ALLPAY 會員付款結果網址
 	$this->all_cfg["PaymentInfoURL"] = $this->all_cfg["ReturnURL"]."/?ap_retrun=1"; // ATM or CVS(超商) 付費專屬資訊回傳網址
@@ -132,13 +138,13 @@
 	*/
 	
 	$this->all_cfg["allpay_type"] = array(
-		90 => $TPLMSG["CREDIT"],
-		91 => $TPLMSG["WEBATM"],
-		92 => $TPLMSG["ATM"],
-		93 => $TPLMSG["CVS"],
-		94 => $TPLMSG["BARCODE"],
-		95 => $TPLMSG["ALIPAY"],
-		96 => $TPLMSG["TENPAY"],
+		"Credit" => $TPLMSG["CREDIT"],
+		"WebATM" => $TPLMSG["WEBATM"],
+		"ATM" => $TPLMSG["ATM"],
+		"CVS" => $TPLMSG["CVS"],
+		"BARCODE" => $TPLMSG["BARCODE"],
+		"Alipay" => $TPLMSG["ALIPAY"],
+		"Tenpay" => $TPLMSG["TENPAY"],
 		//97 => $TPLMSG["TOPUPUSED"],
 	);
 	
@@ -204,5 +210,7 @@
 		$TPLMSG['ALLPAY_CVS_BAR_2'] = "超商繳費條碼 2";
 		$TPLMSG['ALLPAY_CVS_BAR_3'] = "超商繳費條碼 3";
 		$TPLMSG['ALLPAY_EXPIRE'] = "繳費期限";
+		$TPLMSG['ORDER_PENDING'] = "Pending payment"; //待付款
+		$TPLMSG['ORDER_DONE'] = "Paid"; //已付款
 	*/
 ?>
