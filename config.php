@@ -1,5 +1,5 @@
 <?php
-	// 主要設定 ----// 主要設定 ----// 主要設定 ----// 主要設定 ----
+	// 主要設定 ----
 	$this->allpay_switch = false; // 於 cart class 使用歐付寶功能, true => 開啟 , false => 單獨使用歐付寶
 	$this->anonymous_switch = false; // 匿名產品名稱, true => 開啟 , false => 關閉
 	if($this->anonymous_switch){
